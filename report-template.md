@@ -12,7 +12,7 @@ WeightedEnsemble_L3 was the best model, followed by WeightedEnsemble_L2 after fe
 ## Exploratory data analysis and feature creation
 ### What did the exploratory analysis find and how did you add additional features?
 TODO: Add your explanation
-After preprocessing the dataset, I ensured that each variable had the correct data type. Additionally, I generated four new features (day, month, year, and hour) from the datetime variable. Since these new features represent ordinal data, I assigned them the appropriate data type.
+After preprocessing the dataset, I ensured that each variable had the correct data type. Additionally, I generated four new features (day, month, year, day_of_week and hour) from the datetime variable. Since these new features represent ordinal data, I assigned them the appropriate data type. I also created a new column called `temp_category` that assigns the categories "Hot", "Mild", or "Cold" based on the temperature values in the `temp` column. Temperatures greater than or equal to 25 are categorized as "Hot", temperatures less than or equal to 10 are categorized as "Cold", and temperatures between 10 and 25 are categorized as "Mild". This allows for easy identification and analysis of temperature ranges in the dataset.
 
 Next, I examined the distribution of the numeric features (`Temp`, `atemp`, `casual`, `registered`, `windspeed`, and `count`). I found that none of the variables followed a normal distribution. Specifically, `temp` exhibited a bimodal distribution, while `atemp` displayed a multimodal distribution. As expected, both registered and casual had extremely right-skewed distributions, similar to the distribution of count. This makes sense since the sum of registered and casual corresponds to the total count of bike rentals.
 
@@ -25,13 +25,13 @@ Lastly, I noted a moderate positive correlation of approximately 0.39 between `t
 
 ### How much better did your model preform after adding additional features and why do you think that is?
 
-The model's performance significantly improved after adding the additional features. The reduction in RMSE from 84.125 to about 35.6 and the decrease in the Kaggle score from approximately 1.8001 to 0.4387 indicate a substantial improvement in the model's predictive accuracy. The new features, such as day, month, year, and hour, provided the model with more detailed information about the dataset. Also, removing one of the highly correlated features and using the correct data type helped reduced redundancy, allowing the model to focus on the most relevant and independent information, and to better capture the underlying patterns in within the dataset.
+The model's performance significantly improved after adding the additional features. The reduction in RMSE from 53.039754 to about 33.707630 and the decrease in the Kaggle score from approximately 1.8001 to 0.43413 indicate a substantial improvement in the model's predictive accuracy. The new features, such as day, month, year, and hour, and temp_category provided the model with more detailed information about the dataset. Also, removing one of the highly correlated features and using the correct data type helped reduced redundancy, allowing the model to focus on the most relevant and independent information, and to better capture the underlying patterns in within the dataset.
 
 
 ## Hyper parameter tuning
 ### How much better did your model preform after trying different hyper parameters?
 
-I was unable to improve the performance of the model after trying different hyper parameters. Rather I obtained models slightly lower in performance (0.44028 and 0.44038 as Kaggle Score) to the previous model.
+I was unable to improve the performance of the model after trying different hyper parameters. Rather I obtained models slightly lower in performance (0.43413 and 0.44260 as Kaggle Score) to the previous model.
 
 ### If you were given more time with this dataset, where do you think you would spend more time?
 
@@ -39,16 +39,39 @@ Given additional time, I would prioritize enhancing the hyperparameter tuning pr
 
 ### Create a table with the models you ran, the hyperparameters modified, and the kaggle score.
 
-|    model    | time_limit | num_bag_folds | num_stack_levels | num_bag_sets  |       eval_metric      |    Preset    |  score  |
-|:-----------:|:----------:|:-------------:|:----------------:|:-------------:|:----------------------:|:------------:|:-------:|
-|   initial   |    600     |     auto      |       auto       |      auto     | root_mean_square_error | best_quality | 1.80010 |
-| add_features|    600     |     auto      |       auto       |      auto     | root_mean_square_error | best_quality | 0.43867 |
-|    hpo1     |    900     |       9       |        3         |      20       | root_mean_square_error | best_quality | 0.44028 |
+|     Model     |     Hyperparameters  used for tuning                            |
+|:-------------:|:---------------------------------------------------------------:|
+|   NN_TORCH    | num_epochs=10, learning_rate=5e-4, dropout_prob=0.3             |
+|      GBM      | num_boost_round=100, num_leaves=36                              |
+|      CAT      | learning_rate=5e-4, l2_leaf_reg=3, depth=[4, 10], subsample=1.0 |
+|      XGB      | eta=0.1, max_depth=3, subsample=1.0                             |
+|    FASTAI     | learning_rate=5e-4, pretrained=[True, False]                    |
+|      RF       | N/A                                                             |
+|      XT       | N/A                                                             |
+|      KNN      | N/A                                                             |
+
+
+
+
+|     Model      | time_limit |                      Hyperparameters                             |  score |
+|:--------------:|:----------:|:----------------------------------------------------------------:|:------:|
+|   initial      |    600     |                             auto                                 | 1.8001 |
+| add_features   |    600     |                             auto                                 | 0.43413|
+| hpo1 - NN_TORCH|    900     |  num_epochs=10, learning_rate=5e-4, dropout_prob=0.3             | 0.43957|
+| hpo1 - GBM     |    900     |  num_boost_round=100, num_leaves=36                              | 0.43957|
+| hpo1 - CAT     |    900     |  learning_rate=5e-4, l2_leaf_reg=3, depth=[4, 10], subsample=1.0 | 0.43957|
+| hpo1 - XGB     |    900     |  eta=0.1, max_depth=3, subsample=1.0                             | 0.43957|
+| hpo1 - FASTAI  |    900     |  learning_rate=5e-4, pretrained=[True, False]                    | 0.43957|
+| hpo1 - RF      |    900     |                             not specified                        | 0.43957|
+| hpo1 - XT      |    900     |                             not specified                        | 0.43957|
+| hpo1 - KNN     |    900     |                             not specified                        | 0.43957|
+
 
 ### Create a line plot showing the top model score for the three (or more) training runs during the project.
 
 TODO: Replace the image below with your own.
 
+**_NOTE_**: The RMSE's reported and plotted in the image below do not contain the negative signs included by AutoGluon
 ![model_train_score.png](img/model_train_score.png)
 
 ### Create a line plot showing the top kaggle score for the three (or more) prediction submissions during the project.
